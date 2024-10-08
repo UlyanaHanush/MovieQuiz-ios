@@ -19,7 +19,7 @@ final class MovieQuizViewController: UIViewController {
     // переменная со счётчиком правильных ответов, начальное значение закономерно 0
     private var correctAnswers = 0
     
-    private let questions: [QuizQuestion] = [
+    private let questions: [QuizQuestion?] = [
         QuizQuestion(
             image: "The Godfather",
             text: "Рейтинг этого фильма больше чем 6?",
@@ -67,24 +67,27 @@ final class MovieQuizViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // берём текущий вопрос из массива вопросов по индексу текущего вопроса
-        let currentQuestion = questions[currentQuestionIndex]
-        show(quiz: convert(model: currentQuestion))
+        if let currentQuestion = questions[currentQuestionIndex] {
+            show(quiz: convert(model: currentQuestion))
+        }
     }
     
     // MARK: - IBAction
     
     @IBAction private func noButtonClicked(_ sender: UIButton) {
-        let currentQuestion = questions[currentQuestionIndex]
-        let givenAnswer = false
-        
-        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+        if let currentQuestion = questions[currentQuestionIndex] {
+            let givenAnswer = false
+            
+            showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+        }
     }
     
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
-        let currentQuestion = questions[currentQuestionIndex]
-        let givenAnswer = true
-        
-        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+        if let currentQuestion = questions[currentQuestionIndex] {
+            let givenAnswer = true
+            
+            showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+        }
     }
     
     // MARK: - Private Methods
@@ -135,15 +138,14 @@ final class MovieQuizViewController: UIViewController {
             show(quiz: viewModel)
             
         } else {
-            // выключили кнопки
             currentQuestionIndex += 1
             // идём в состояние "Вопрос показан"
-            let nextQuestion = questions[currentQuestionIndex]
-            let viewModel = convert(model: nextQuestion)
-            imageView.layer.borderColor = UIColor.clear.cgColor
-            show(quiz: viewModel)
-            // включили кнопки
-            changeStateButtons(isEnabled: true)
+            if let nextQuestion = questions[currentQuestionIndex] {
+                let viewModel = convert(model: nextQuestion)
+                imageView.layer.borderColor = UIColor.clear.cgColor
+                show(quiz: viewModel)
+                changeStateButtons(isEnabled: true)
+            }
         }
     }
     
@@ -165,9 +167,10 @@ final class MovieQuizViewController: UIViewController {
             self.currentQuestionIndex = 0
             self.correctAnswers = 0
             
-            let firstQuestion = self.questions[self.currentQuestionIndex]
-            let viewModel = self.convert(model: firstQuestion)
-            self.show(quiz: viewModel)
+            if let firstQuestion = self.questions[self.currentQuestionIndex] {
+                let viewModel = self.convert(model: firstQuestion)
+                self.show(quiz: viewModel)
+            }
         }
         
         alert.addAction(action)
