@@ -1,11 +1,14 @@
 import UIKit
 
 final class MovieQuizViewController: UIViewController {
-    // MARK: - Lifecycle
+    
+    // MARK: - @IBOutlet
     
     @IBOutlet private weak var imageView: UIImageView!
     @IBOutlet private weak var counterLabel: UILabel!
     @IBOutlet private weak var textLabel: UILabel!
+    
+    // MARK: - Private Properties
     
     // переменная с индексом текущего вопроса, начальное значение 0
     // (по этому индексу будем искать вопрос в массиве, где индекс первого элемента 0, а не 1)
@@ -13,26 +16,6 @@ final class MovieQuizViewController: UIViewController {
     
     // переменная со счётчиком правильных ответов, начальное значение закономерно 0
     private var correctAnswers = 0
-    
-    // для состояния "Результат квиза"
-    struct QuizResultsViewModel {
-        // строка с заголовком алерта
-        let title: String
-        // строка с текстом о количестве набранных очков
-        let text: String
-        // текст для кнопки алерта
-        let buttonText: String
-    }
-    
-    struct QuizQuestion {
-        // строка с названием фильма,
-        // совпадает с названием картинки афиши фильма в Assets
-        let image: String
-        // строка с вопросом о рейтинге фильма
-        let text: String
-        // булевое значение (true, false), правильный ответ на вопрос
-        let correctAnswer: Bool
-    }
     
     private let questions: [QuizQuestion] = [
         QuizQuestion(
@@ -77,15 +60,7 @@ final class MovieQuizViewController: UIViewController {
             correctAnswer: false)
     ]
     
-    // вью модель для состояния "Вопрос показан"
-    struct QuizStepViewModel {
-        // картинка с афишей фильма с типом UIImage
-        let image: UIImage
-        // вопрос о рейтинге квиза
-        let question: String
-        // строка с порядковым номером этого вопроса (ex. "1/10")
-        let questionNumber: String
-    }
+    // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -93,6 +68,24 @@ final class MovieQuizViewController: UIViewController {
         let currentQuestion = questions[currentQuestionIndex]
         show(quiz: convert(model: currentQuestion))
     }
+    
+    // MARK: - IBAction
+    
+    @IBAction private func noButtonClicked(_ sender: UIButton) {
+        let currentQuestion = questions[currentQuestionIndex]
+        let givenAnswer = false
+        
+        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+    }
+    
+    @IBAction private func yesButtonClicked(_ sender: UIButton) {
+        let currentQuestion = questions[currentQuestionIndex]
+        let givenAnswer = true
+        
+        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+    }
+    
+    // MARK: - Private Methods
     
     // приватный метод конвертации, который принимает моковый вопрос и возвращает вью модель для главного экрана
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
@@ -108,20 +101,6 @@ final class MovieQuizViewController: UIViewController {
         counterLabel.text = step.questionNumber
         imageView.image = step.image
         textLabel.text = step.question
-    }
-    
-    @IBAction private func noButtonClicked(_ sender: UIButton) {
-        let currentQuestion = questions[currentQuestionIndex]
-        let givenAnswer = false
-        
-        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
-    }
-    
-    @IBAction private func yesButtonClicked(_ sender: UIButton) {
-        let currentQuestion = questions[currentQuestionIndex]
-        let givenAnswer = true
-        
-        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
     }
     
     // приватный метод, который меняет цвет рамки
