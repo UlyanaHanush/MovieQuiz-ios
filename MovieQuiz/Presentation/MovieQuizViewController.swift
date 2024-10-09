@@ -117,9 +117,11 @@ final class MovieQuizViewController: UIViewController {
         imageView.layer.masksToBounds = true
         imageView.layer.borderWidth = 8
         imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
+        //  блокировка кнопки ответа
         changeStateButtons(isEnabled: false)
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+            guard let self = self else { return } // разворачиваем слабую ссылку
             self.showNextQuestionOrResults()
         }
     }
@@ -135,8 +137,8 @@ final class MovieQuizViewController: UIViewController {
                 text: text,
                 buttonText: "Сыграть ещё раз")
             
+
             show(quiz: viewModel)
-            
         } else {
             currentQuestionIndex += 1
             // идём в состояние "Вопрос показан"
@@ -144,6 +146,7 @@ final class MovieQuizViewController: UIViewController {
                 let viewModel = convert(model: nextQuestion)
                 imageView.layer.borderColor = UIColor.clear.cgColor
                 show(quiz: viewModel)
+                // включение кнопки ответа
                 changeStateButtons(isEnabled: true)
             }
         }
@@ -159,22 +162,32 @@ final class MovieQuizViewController: UIViewController {
     // принимает вью модель QuizResultsViewModel и ничего не возвращает
     private func show(quiz result: QuizResultsViewModel) {
         let alert = UIAlertController(
-            title: result.title,
-            message: result.text,
-            preferredStyle: .alert)
+            title: result.title, // заголовок всплывающего окна
+            message: result.text, // текст во всплывающем окне
+            preferredStyle: .alert) // preferredStyle может быть .alert или .actionSheet
         
-        let action = UIAlertAction(title: result.buttonText, style: .default) { _ in
+        // создаём для алерта кнопку с действием
+        // в замыкании пишем, что должно происходить при нажатии на кнопку
+        let action = UIAlertAction(title: result.buttonText, style: .default) { [weak self] _ in
+            guard let self = self else { return } // разворачиваем слабую ссылку
+            
             self.currentQuestionIndex = 0
             self.correctAnswers = 0
             
+            // заново показываем первый вопрос
             if let firstQuestion = self.questions[self.currentQuestionIndex] {
                 let viewModel = self.convert(model: firstQuestion)
+                imageView.layer.borderColor = UIColor.clear.cgColor
+                // включение кнопки ответа
+                changeStateButtons(isEnabled: true)
                 self.show(quiz: viewModel)
             }
         }
         
+        // добавляем в алерт кнопку
         alert.addAction(action)
         
+        // показываем всплывающее окно
         self.present(alert, animated: true, completion: nil)
     }
 }
