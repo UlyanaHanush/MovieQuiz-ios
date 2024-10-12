@@ -1,6 +1,6 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
+final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, AlertProtocol {
     
     // MARK: - @IBOutlet
     
@@ -23,6 +23,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private var currentQuestionIndex = 0
     // переменная со счётчиком правильных ответов, начальное значение закономерно 0
     private var correctAnswers = 0
+    // алерт
+    private var alertPresenter: AlertPresenter?
 
     
     // MARK: - Lifecycle
@@ -31,11 +33,13 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         super.viewDidLoad()
         
         let questionFactory = QuestionFactory()
-            questionFactory.delegate = self
-            self.questionFactory = questionFactory
+        questionFactory.delegate = self
+        self.questionFactory = questionFactory
         
         // показываем первый вопрос
         questionFactory.requestNextQuestion()
+        
+        alertPresenter = AlertPresenter(viewController: self)
     }
     
     // MARK: - QuestionFactoryDelegate
@@ -111,13 +115,21 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         if currentQuestionIndex == questionsAmount - 1 {
             // идём в состояние "Результат квиза"
             let text = "Ваш результат: \(correctAnswers)/10"
-            let viewModel = QuizResultsViewModel(
+            let alertModel = AlertModel(
                 title: "Этот раунд окончен!",
-                text: text,
-                buttonText: "Сыграть ещё раз")
+                message: text,
+                buttonText: "Сыграть ещё раз") {
+                    self.currentQuestionIndex = 0
+                    self.correctAnswers = 0
+                    self.imageView.layer.borderColor = UIColor.clear.cgColor
+                    // включение кнопки ответа
+                    self.changeStateButtons(isEnabled: true)
+                    // заново показываем первый вопрос
+                    self.questionFactory?.requestNextQuestion()
+                }
             
 
-            show(quiz: viewModel)
+            show(quiz: alertModel)
         } else {
             currentQuestionIndex += 1
             imageView.layer.borderColor = UIColor.clear.cgColor
@@ -135,34 +147,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         noButton.isEnabled = isEnabled
     }
     
-    // приватный метод для показа результатов раунда квиза
-    // принимает вью модель QuizResultsViewModel и ничего не возвращает
-    private func show(quiz result: QuizResultsViewModel) {
-        let alert = UIAlertController(
-            title: result.title, // заголовок всплывающего окна
-            message: result.text, // текст во всплывающем окне
-            preferredStyle: .alert) // preferredStyle может быть .alert или .actionSheet
-        
-        // создаём для алерта кнопку с действием
-        // в замыкании пишем, что должно происходить при нажатии на кнопку
-        let action = UIAlertAction(title: result.buttonText, style: .default) { [weak self] _ in
-            guard let self = self else { return } // разворачиваем слабую ссылку
-            
-            self.currentQuestionIndex = 0
-            self.correctAnswers = 0
-            
-            imageView.layer.borderColor = UIColor.clear.cgColor
-            // включение кнопки ответа
-            changeStateButtons(isEnabled: true)
-            
-            // заново показываем первый вопрос
-            self.questionFactory?.requestNextQuestion() 
-        }
-        
-        // добавляем в алерт кнопку
-        alert.addAction(action)
-        
-        // показываем всплывающее окно
-        self.present(alert, animated: true, completion: nil)
-    }
+    func show(quiz result: AlertModel) {
+                alertPresenter?.show(quiz: result)
+            }
 }
