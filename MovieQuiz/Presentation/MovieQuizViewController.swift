@@ -25,7 +25,9 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     private var correctAnswers = 0
     // алерт
     private var alertPresenter: AlertPresenter?
-
+    // статистика
+    private var statisticService: StatisticServiceProtocol!
+    
     
     // MARK: - Lifecycle
     
@@ -40,16 +42,17 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         questionFactory.requestNextQuestion()
         
         alertPresenter = AlertPresenter(viewController: self)
+        statisticService = StatisticService()
     }
     
     // MARK: - QuestionFactoryDelegate
-
+    
     func didReceiveNextQuestion(question: QuizQuestion?) {
         // проверка, что вопрос не nil
         guard let question = question else {
             return
         }
-
+        
         currentQuestion = question
         let viewModel = convert(model: question)
         
@@ -62,16 +65,16 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     
     @IBAction private func noButtonClicked(_ sender: UIButton) {
         guard let currentQuestion = currentQuestion else { return }
-            let givenAnswer = false
-            
-            showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+        let givenAnswer = false
+        
+        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
     }
     
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
         guard let currentQuestion = currentQuestion else { return }
-            let givenAnswer = true
-            
-            showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+        let givenAnswer = true
+        
+        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
     }
     
     // MARK: - Private Methods
@@ -113,8 +116,15 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     // метод ничего не принимает и ничего не возвращает
     private func showNextQuestionOrResults() {
         if currentQuestionIndex == questionsAmount - 1 {
+            // сохраняем статистику
+            storeGameStatistics()
             // идём в состояние "Результат квиза"
-            let text = "Ваш результат: \(correctAnswers)/10"
+            let text = """
+                Ваш результат: \(correctAnswers)/10
+                Количество сыгранных квизов: \(statisticService.gamesCount)
+                Рекорд: \(statisticService.bestGame.correct)/\(statisticService.bestGame.total) (\(statisticService.bestGame.date.dateTimeString))
+                Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%
+                """
             let alertModel = AlertModel(
                 title: "Этот раунд окончен!",
                 message: text,
@@ -128,7 +138,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
                     self.questionFactory?.requestNextQuestion()
                 }
             
-
+            
             show(quiz: alertModel)
         } else {
             currentQuestionIndex += 1
@@ -148,6 +158,11 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     }
     
     func show(quiz result: AlertModel) {
-                alertPresenter?.show(quiz: result)
-            }
+        alertPresenter?.show(quiz: result)
+    }
+    
+    // сохранение статистики
+    private func storeGameStatistics() {
+        statisticService.store(correct: correctAnswers, total: questionsAmount)
+    }
 }
