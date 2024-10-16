@@ -12,20 +12,20 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     
     // MARK: - Private Properties
     
-    // общее количество вопросов для квиза
+    /// общее количество вопросов для квиза
     private let questionsAmount: Int = 10
-    //фабрика вопросов
+    /// фабрика вопросов
     private var questionFactory: QuestionFactoryProtocol?
-    // вопрос, который видит пользователь
+    /// вопрос, который видит пользователь
     private var currentQuestion: QuizQuestion?
-    // переменная с индексом текущего вопроса, начальное значение 0
-    // (по этому индексу будем искать вопрос в массиве, где индекс первого элемента 0, а не 1)
+    /// переменная с индексом текущего вопроса, начальное значение 0
+    /// (по этому индексу будем искать вопрос в массиве, где индекс первого элемента 0, а не 1)
     private var currentQuestionIndex = 0
-    // переменная со счётчиком правильных ответов, начальное значение закономерно 0
+    /// переменная со счётчиком правильных ответов, начальное значение закономерно 0
     private var correctAnswers = 0
-    // алерт
+    /// алерт
     private var alertPresenter: AlertPresenter?
-    // статистика
+    /// статистика
     private var statisticService: StatisticServiceProtocol!
     
     
@@ -61,6 +61,13 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         }
     }
     
+    // MARK: - AlertProtocol
+    
+    /// показ алерта
+    func show(quiz result: AlertModel) {
+        alertPresenter?.show(quiz: result)
+    }
+    
     // MARK: - IBAction
     
     @IBAction private func noButtonClicked(_ sender: UIButton) {
@@ -79,7 +86,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     
     // MARK: - Private Methods
     
-    // приватный метод конвертации, который принимает моковый вопрос и возвращает вью модель для главного экрана
+    /// приватный метод конвертации, который принимает моковый вопрос и возвращает вью модель для главного экрана
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
         QuizStepViewModel(
             image: UIImage(named: model.image) ?? UIImage(),
@@ -87,13 +94,13 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
             questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
     }
     
-    // приватный метод вывода на экран вопроса, который принимает на вход вью модель вопроса и ничего не возвращает
+    /// приватный метод вывода на экран вопроса, который принимает на вход вью модель вопроса и ничего не возвращает
     private func show(quiz step: QuizStepViewModel) {
         counterLabel.text = step.questionNumber
         imageView.image = step.image
         textLabel.text = step.question
     }
-    // приватный метод, который меняет цвет рамки
+    /// приватный метод, который меняет цвет рамки
     // принимает на вход булевое значение и ничего не возвращает
     private func showAnswerResult(isCorrect: Bool) {
         if isCorrect {
@@ -112,7 +119,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         }
     }
     
-    // приватный метод, который содержит логику перехода в один из сценариев
+    /// приватный метод, который содержит логику перехода в один из сценариев
     // метод ничего не принимает и ничего не возвращает
     private func showNextQuestionOrResults() {
         if currentQuestionIndex == questionsAmount - 1 {
@@ -128,14 +135,14 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
             let alertModel = AlertModel(
                 title: "Этот раунд окончен!",
                 message: text,
-                buttonText: "Сыграть ещё раз") {
-                    self.currentQuestionIndex = 0
-                    self.correctAnswers = 0
-                    self.imageView.layer.borderColor = UIColor.clear.cgColor
+                buttonText: "Сыграть ещё раз") { [weak self] in
+                    self?.currentQuestionIndex = 0
+                    self?.correctAnswers = 0
+                    self?.imageView.layer.borderColor = UIColor.clear.cgColor
                     // включение кнопки ответа
-                    self.changeStateButtons(isEnabled: true)
+                    self?.changeStateButtons(isEnabled: true)
                     // заново показываем первый вопрос
-                    self.questionFactory?.requestNextQuestion()
+                    self?.questionFactory?.requestNextQuestion()
                 }
             
             
@@ -151,17 +158,13 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         }
     }
     
-    // изменение состояния кнопки
+    /// изменение состояния кнопки
     private func changeStateButtons(isEnabled: Bool) {
         yesButton.isEnabled = isEnabled
         noButton.isEnabled = isEnabled
     }
     
-    func show(quiz result: AlertModel) {
-        alertPresenter?.show(quiz: result)
-    }
-    
-    // сохранение статистики
+    /// сохранение статистики
     private func storeGameStatistics() {
         statisticService.store(correct: correctAnswers, total: questionsAmount)
     }

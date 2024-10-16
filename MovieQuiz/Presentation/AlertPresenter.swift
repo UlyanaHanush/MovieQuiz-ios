@@ -8,6 +8,7 @@
 import Foundation
 import UIKit
 
+/// создание аллерта и отображение
 final class AlertPresenter {
     private weak var viewController: UIViewController?
     
@@ -15,7 +16,7 @@ final class AlertPresenter {
         self.viewController = viewController
     }
     
-    // приватный метод для показа результатов раунда квиза
+    /// приватный метод для показа результатов раунда квиза
     // принимает вью модель QuizResultsViewModel и ничего не возвращает
     func show(quiz result: AlertModel) {
         let alert = UIAlertController(
