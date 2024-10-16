@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// хранение и обработка вопросов для квиза
 class QuestionFactory: QuestionFactoryProtocol {
     weak var delegate: QuestionFactoryDelegate?
     private let questions: [QuizQuestion] = [
@@ -52,6 +53,7 @@ class QuestionFactory: QuestionFactoryProtocol {
             correctAnswer: false)
     ]
     
+    /// рандомный отбор вопроса для квиза
     func requestNextQuestion() {
         guard let index = (0..<questions.count).randomElement() else {
             delegate?.didReceiveNextQuestion(question: nil)

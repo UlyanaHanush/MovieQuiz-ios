@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// сохранение и подсчет статистики квиза
 final class StatisticService: StatisticServiceProtocol {
     private let storage: UserDefaults = .standard
     
@@ -62,6 +63,7 @@ final class StatisticService: StatisticServiceProtocol {
         }
     }
     
+    /// обновление результатов после очередного квиза
     func store(correct count: Int, total amount: Int) {
         gamesCount += 1
         
