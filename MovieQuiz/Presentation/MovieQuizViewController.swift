@@ -36,14 +36,12 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         super.viewDidLoad()
         
         questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
-        // questionFactory.delegate = self
-        //self.questionFactory = questionFactory
         
-        // imageView.layer.cornerRadius = 20
-
+        imageView.layer.cornerRadius = 20
         
         // показываем индикатор загрузки
         showLoadingIndicator()
+        questionFactory?.loadData()
         
         alertPresenter = AlertPresenter(viewController: self)
         statisticService = StatisticService()
@@ -72,6 +70,20 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         alertPresenter?.show(quiz: result)
     }
     
+    // MARK: - QuestionFactoryDelegate
+    
+    /// данные с сервера загружены
+    func didLoadDataFromServer() {
+        activityIndicator.isHidden = true // скрываем индикатор загрузки
+        questionFactory?.requestNextQuestion()
+    }
+    
+    ///  ошибка при загрузке данных с сервера
+    func didFailToLoadData(with error: Error) {
+        // возьмём в качестве сообщения описание ошибки
+        showNetworkError(message: error.localizedDescription)
+    }
+    
     // MARK: - IBAction
     
     @IBAction private func noButtonClicked(_ sender: UIButton) {
@@ -92,7 +104,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     
     /// приватный метод конвертации, который принимает моковый вопрос и возвращает вью модель для главного экрана
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
-        QuizStepViewModel(
+        return QuizStepViewModel(
             image: UIImage(data: model.image) ?? UIImage(),
             question: model.text, // 3
             questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
@@ -173,13 +185,13 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         statisticService.store(correct: correctAnswers, total: questionsAmount)
     }
     
-    // скрываем индикатор загрузки
-    func hideLoadingIndicator() {
+    /// скрываем индикатор загрузки
+    private func hideLoadingIndicator() {
         // говорим, что индикатор загрузки скрыт
         activityIndicator.isHidden = true
         // выключаем анимацию
         activityIndicator.stopAnimating()
-        }
+    }
     
     /// индикатор загрузки
     private func showLoadingIndicator() {
@@ -211,18 +223,5 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         
         
         show(quiz: model)
-        //alertPresenter.show(in: self, model: model)
-    }
-    
-    func didLoadDataFromServer() {
-        activityIndicator.isHidden = true // скрываем индикатор загрузки
-        questionFactory?.requestNextQuestion()
-
-    }
-
-    func didFailToLoadData(with error: Error) {
-        // возьмём в качестве сообщения описание ошибки
-        showNetworkError(message: error.localizedDescription)
-
     }
 }

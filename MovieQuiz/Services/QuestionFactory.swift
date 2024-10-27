@@ -11,13 +11,14 @@ import Foundation
 final class QuestionFactory: QuestionFactoryProtocol {
     private weak var delegate: QuestionFactoryDelegate?
     private let moviesLoader: MoviesLoading
+    private var movies: [MostPopularMovie] = []
     
     init(moviesLoader: MoviesLoading, delegate: QuestionFactoryDelegate?) {
             self.moviesLoader = moviesLoader
             self.delegate = delegate
         }
     
-    private var movies: [MostPopularMovie] = []
+    
     
     func loadData() {
         moviesLoader.loadMovies { [weak self] result in
@@ -88,7 +89,7 @@ final class QuestionFactory: QuestionFactoryProtocol {
             var imageData = Data()
            
            do {
-                imageData = try Data(contentsOf: movie.imageURL)
+                imageData = try Data(contentsOf: movie.resizedImageURL)
             } catch {
                 print("Failed to load image")
             }

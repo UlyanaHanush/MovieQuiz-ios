@@ -14,10 +14,12 @@ struct NetworkClient {
     }
     
     func fetch(url: URL, handler: @escaping(Result<Data, Error>) -> Void) {
+        
         // создаём запрос из url
         let request = URLRequest(url: url)
         
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            
             // Проверяем, пришла ли ошибка
             if let erorr = error {
                 handler(.failure(erorr))
