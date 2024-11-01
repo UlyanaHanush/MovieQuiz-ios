@@ -9,6 +9,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     @IBOutlet private weak var textLabel: UILabel!
     @IBOutlet private weak var noButton: UIButton!
     @IBOutlet private weak var yesButton: UIButton!
+    @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
     
     // MARK: - Private Properties
     
@@ -34,15 +35,18 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let questionFactory = QuestionFactory()
-        questionFactory.delegate = self
-        self.questionFactory = questionFactory
+        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         
-        // показываем первый вопрос
-        questionFactory.requestNextQuestion()
+        imageView.layer.cornerRadius = 20
+        
+        // показываем индикатор загрузки
+        showLoadingIndicator()
+        questionFactory?.loadData()
         
         alertPresenter = AlertPresenter(viewController: self)
         statisticService = StatisticService()
+        
+        activityIndicator.hidesWhenStopped = true
     }
     
     // MARK: - QuestionFactoryDelegate
@@ -68,6 +72,20 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         alertPresenter?.show(quiz: result)
     }
     
+    // MARK: - QuestionFactoryDelegate
+    
+    /// данные с сервера загружены
+    func didLoadDataFromServer() {
+        activityIndicator.isHidden = true // скрываем индикатор загрузки
+        questionFactory?.requestNextQuestion()
+    }
+    
+    ///  ошибка при загрузке данных с сервера
+    func didFailToLoadData(with error: Error) {
+        // возьмём в качестве сообщения описание ошибки
+        showNetworkError(message: error.localizedDescription)
+    }
+    
     // MARK: - IBAction
     
     @IBAction private func noButtonClicked(_ sender: UIButton) {
@@ -88,8 +106,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     
     /// приватный метод конвертации, который принимает моковый вопрос и возвращает вью модель для главного экрана
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
-        QuizStepViewModel(
-            image: UIImage(named: model.image) ?? UIImage(),
+        return QuizStepViewModel(
+            image: UIImage(data: model.image) ?? UIImage(),
             question: model.text, // 3
             questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
     }
@@ -167,5 +185,61 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     /// сохранение статистики
     private func storeGameStatistics() {
         statisticService.store(correct: correctAnswers, total: questionsAmount)
+    }
+    
+    /// скрываем индикатор загрузки
+    private func hideLoadingIndicator() {
+        // выключаем анимацию
+        activityIndicator.stopAnimating()
+    }
+    
+    /// индикатор загрузки
+    private func showLoadingIndicator() {
+        // включаем анимацию
+        activityIndicator.startAnimating()
+        
+    }
+    
+    /// состояние ошибки
+    private func showNetworkError(message: String) {
+        hideLoadingIndicator() // скрываем индикатор загрузки
+        
+        let model = AlertModel(
+            title: "Ошибка",
+            message: message,
+            buttonText: "Попробовать ещё раз") { [weak self] in
+                guard let self = self else { return }
+                
+                self.currentQuestionIndex = 0
+                self.correctAnswers = 0
+                self.imageView.layer.borderColor = UIColor.clear.cgColor
+                // включение кнопки ответа
+                self.changeStateButtons(isEnabled: true)
+                // загружаем вопросы
+                self.questionFactory?.loadData()
+
+            }
+        
+        
+        show(quiz: model)
+    }
+    
+    func showImageError(message: String) {
+        let model = AlertModel(
+            title: "Ошибка",
+            message: "Не удалось загрузить картинку",
+            buttonText: "Попробовать ещё раз") { [weak self] in
+                guard let self = self else { return }
+                
+                self.currentQuestionIndex = 0
+                self.correctAnswers = 0
+                self.imageView.layer.borderColor = UIColor.clear.cgColor
+                // включение кнопки ответа
+                self.changeStateButtons(isEnabled: true)
+                // загружаем вопросы
+                self.questionFactory?.loadData()
+
+        }
+        show(quiz: model)
     }
 }
