@@ -45,6 +45,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         
         alertPresenter = AlertPresenter(viewController: self)
         statisticService = StatisticService()
+        
+        activityIndicator.hidesWhenStopped = true
     }
     
     // MARK: - QuestionFactoryDelegate
@@ -187,16 +189,12 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     
     /// скрываем индикатор загрузки
     private func hideLoadingIndicator() {
-        // говорим, что индикатор загрузки скрыт
-        activityIndicator.isHidden = true
         // выключаем анимацию
         activityIndicator.stopAnimating()
     }
     
     /// индикатор загрузки
     private func showLoadingIndicator() {
-        // говорим, что индикатор загрузки не скрыт
-        activityIndicator.isHidden = false
         // включаем анимацию
         activityIndicator.startAnimating()
         
@@ -217,11 +215,31 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
                 self.imageView.layer.borderColor = UIColor.clear.cgColor
                 // включение кнопки ответа
                 self.changeStateButtons(isEnabled: true)
-                // заново показываем первый вопрос
-                self.questionFactory?.requestNextQuestion()
+                // загружаем вопросы
+                self.questionFactory?.loadData()
+
             }
         
         
+        show(quiz: model)
+    }
+    
+    func showImageError(message: String) {
+        let model = AlertModel(
+            title: "Ошибка",
+            message: "Не удалось загрузить картинку",
+            buttonText: "Попробовать ещё раз") { [weak self] in
+                guard let self = self else { return }
+                
+                self.currentQuestionIndex = 0
+                self.correctAnswers = 0
+                self.imageView.layer.borderColor = UIColor.clear.cgColor
+                // включение кнопки ответа
+                self.changeStateButtons(isEnabled: true)
+                // загружаем вопросы
+                self.questionFactory?.loadData()
+
+        }
         show(quiz: model)
     }
 }

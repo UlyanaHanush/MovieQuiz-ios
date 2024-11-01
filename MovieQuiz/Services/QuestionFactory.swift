@@ -16,9 +16,7 @@ final class QuestionFactory: QuestionFactoryProtocol {
     init(moviesLoader: MoviesLoading, delegate: QuestionFactoryDelegate?) {
             self.moviesLoader = moviesLoader
             self.delegate = delegate
-        }
-    
-    
+    }
     
     func loadData() {
         moviesLoader.loadMovies { [weak self] result in
@@ -26,15 +24,54 @@ final class QuestionFactory: QuestionFactoryProtocol {
                 guard let self = self else { return }
                 switch result {
                 case .success(let mostPopularMovies):
-                    self.movies = mostPopularMovies.items // сохраняем фильм в нашу новую переменную
-                    self.delegate?.didLoadDataFromServer() // сообщаем, что данные загрузились
+                    // сохраняем фильм в нашу новую переменную
+                    self.movies = mostPopularMovies.items
+                    // сообщаем, что данные загрузились
+                    self.delegate?.didLoadDataFromServer()
                 case .failure(let error):
-                    self.delegate?.didFailToLoadData(with: error) // сообщаем об ошибке нашему MovieQuizViewController
+                    // сообщаем об ошибке нашему MovieQuizViewController
+                    self.delegate?.didFailToLoadData(with: error)
                 }
             }
         }
     }
     
+    /// рандомный отбор вопроса для квиза
+    func requestNextQuestion() {
+        DispatchQueue.global().async { [weak self] in
+            guard let self = self else { return }
+            
+            // Выбор случайного фильма из списка
+            let index = (0..<self.movies.count).randomElement() ?? 0
+            guard let movie = self.movies[safe: index] else { return }
+            
+            var imageData = Data()
+           
+           do {
+                imageData = try Data(contentsOf: movie.resizedImageURL)
+            } catch {
+                /// вызываем функцию ошибки картинки
+                print("Failed to load image")
+            }
+            
+            let rating = Float(movie.rating) ?? 0
+            
+            let raitingNumber = (0...10).randomElement() ?? 0
+            let text = "Рейтинг этого фильма больше чем \(raitingNumber)?"
+            let correctAnswer = rating > Float(raitingNumber)
+            
+            let question = QuizQuestion(image: imageData,
+                                         text: text,
+                                         correctAnswer: correctAnswer)
+            
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                self.delegate?.didReceiveNextQuestion(question: question)
+            }
+        }
+    }
+}
+
 //    private let questions: [QuizQuestion] = [
 //        QuizQuestion(
 //            image: "The Godfather",
@@ -77,37 +114,3 @@ final class QuestionFactory: QuestionFactoryProtocol {
 //            text: "Рейтинг этого фильма больше чем 6?",
 //            correctAnswer: false)
 //    ]
-    
-    /// рандомный отбор вопроса для квиза
-    func requestNextQuestion() {
-        DispatchQueue.global().async { [weak self] in
-            guard let self = self else { return }
-            let index = (0..<self.movies.count).randomElement() ?? 0
-            
-            guard let movie = self.movies[safe: index] else { return }
-            
-            var imageData = Data()
-           
-           do {
-                imageData = try Data(contentsOf: movie.resizedImageURL)
-            } catch {
-                print("Failed to load image")
-            }
-            
-            let rating = Float(movie.rating) ?? 0
-            
-            let raitingNumber = (0...10).randomElement() ?? 0
-            let text = "Рейтинг этого фильма больше чем \(raitingNumber)?"
-            let correctAnswer = rating > Float(raitingNumber)
-            
-            let question = QuizQuestion(image: imageData,
-                                         text: text,
-                                         correctAnswer: correctAnswer)
-            
-            DispatchQueue.main.async { [weak self] in
-                guard let self = self else { return }
-                self.delegate?.didReceiveNextQuestion(question: question)
-            }
-        }
-    }
-}
