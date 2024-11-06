@@ -23,6 +23,7 @@ final class AlertPresenter {
             title: result.title, // заголовок всплывающего окна
             message: result.message, // текст во всплывающем окне
             preferredStyle: .alert) // preferredStyle может быть .alert или .actionSheet
+        alert.view.accessibilityIdentifier = "Alert"
         
         // создаём для алерта кнопку с действием
         // в замыкании пишем, что должно происходить при нажатии на кнопку

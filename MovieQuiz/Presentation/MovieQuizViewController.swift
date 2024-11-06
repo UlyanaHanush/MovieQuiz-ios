@@ -86,6 +86,10 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         showNetworkError(message: error.localizedDescription)
     }
     
+    func didFailToLoadImage(with error: Error) {
+        showImageError(message: error.localizedDescription)
+    }
+    
     // MARK: - IBAction
     
     @IBAction private func noButtonClicked(_ sender: UIButton) {
@@ -231,13 +235,13 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
             buttonText: "Попробовать ещё раз") { [weak self] in
                 guard let self = self else { return }
                 
-                self.currentQuestionIndex = 0
-                self.correctAnswers = 0
-                self.imageView.layer.borderColor = UIColor.clear.cgColor
-                // включение кнопки ответа
-                self.changeStateButtons(isEnabled: true)
-                // загружаем вопросы
-                self.questionFactory?.loadData()
+//                self.currentQuestionIndex = 0
+//                self.correctAnswers = 0
+//                self.imageView.layer.borderColor = UIColor.clear.cgColor
+//                // включение кнопки ответа
+//                self.changeStateButtons(isEnabled: true)
+//                // загружаем вопросы
+                self.questionFactory?.requestNextQuestion()
 
         }
         show(quiz: model)
