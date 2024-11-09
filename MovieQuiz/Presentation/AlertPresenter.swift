@@ -17,18 +17,17 @@ final class AlertPresenter {
     }
     
     /// приватный метод для показа результатов раунда квиза
-    // принимает вью модель QuizResultsViewModel и ничего не возвращает
-    func show(quiz result: AlertModel) {
+    func presentAlert(with model: AlertModel) {
         let alert = UIAlertController(
-            title: result.title, // заголовок всплывающего окна
-            message: result.message, // текст во всплывающем окне
+            title: model.title, // заголовок всплывающего окна
+            message: model.message, // текст во всплывающем окне
             preferredStyle: .alert) // preferredStyle может быть .alert или .actionSheet
         alert.view.accessibilityIdentifier = "Alert"
         
         // создаём для алерта кнопку с действием
         // в замыкании пишем, что должно происходить при нажатии на кнопку
-        let action = UIAlertAction(title: result.buttonText, style: .default) { _ in
-            result.completion()
+        let action = UIAlertAction(title: model.buttonText, style: .default) { _ in
+            model.completion()
 
         }
         

@@ -13,7 +13,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     // MARK: - Private Properties
     
     private var questionFactory: QuestionFactoryProtocol?
-    private weak var viewController: MovieQuizViewController?
+    private weak var viewController: MovieQuizViewControllerProtocol?
     private let statisticService: StatisticServiceProtocol!
     
     /// общее количество вопросов для квиза
@@ -27,7 +27,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     
     // MARK: - Initializers
     
-    init(viewController: MovieQuizViewController) {
+    init(viewController: MovieQuizViewControllerProtocol) {
         self.viewController = viewController
         
         statisticService = StatisticService()

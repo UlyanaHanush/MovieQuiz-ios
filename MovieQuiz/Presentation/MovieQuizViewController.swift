@@ -1,6 +1,6 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController, AlertProtocol {
+final class MovieQuizViewController: UIViewController, MovieQuizViewControllerProtocol {
     
     // MARK: - @IBOutlet
     
@@ -33,11 +33,11 @@ final class MovieQuizViewController: UIViewController, AlertProtocol {
         activityIndicator.hidesWhenStopped = true
     }
     
-    // MARK: - AlertProtocol
+    // MARK: - AlertPresenter
     
     /// показ алерта
     func show(quiz result: AlertModel) {
-        alertPresenter?.show(quiz: result)
+        alertPresenter?.presentAlert(with: result)
     }
     
     // MARK: - Public Methods
@@ -91,7 +91,6 @@ final class MovieQuizViewController: UIViewController, AlertProtocol {
                 self.changeStateButtons(isEnabled: true)
                 // загружаем вопросы
                 self.presenter.restartGame()
-                
             }
         
         
@@ -106,8 +105,9 @@ final class MovieQuizViewController: UIViewController, AlertProtocol {
                 guard let self = self else { return }
                 
                 presenter.restartGame()
-                
             }
+        
+        
         show(quiz: model)
     }
     
