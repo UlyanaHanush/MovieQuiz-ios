@@ -38,6 +38,7 @@
 		CEB66CFB2CA313900085770E /* YS Display-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CEB66CFA2CA313900085770E /* YS Display-Bold.ttf */; };
 		CEB66CFD2CA3139A0085770E /* YS Display-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CEB66CFC2CA3139A0085770E /* YS Display-Medium.ttf */; };
 		CEBE62812CE0046800AB2025 /* MovieQuizPresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEBE62802CE0046800AB2025 /* MovieQuizPresenterTests.swift */; };
+		CEBE62832CE3F55600AB2025 /* MovieQuizViewControllerMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEBE62822CE3F55600AB2025 /* MovieQuizViewControllerMock.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -93,6 +94,7 @@
 		CEB66CFA2CA313900085770E /* YS Display-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "YS Display-Bold.ttf"; sourceTree = "<group>"; };
 		CEB66CFC2CA3139A0085770E /* YS Display-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "YS Display-Medium.ttf"; sourceTree = "<group>"; };
 		CEBE62802CE0046800AB2025 /* MovieQuizPresenterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieQuizPresenterTests.swift; sourceTree = "<group>"; };
+		CEBE62822CE3F55600AB2025 /* MovieQuizViewControllerMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieQuizViewControllerMock.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -221,6 +223,7 @@
 				CE9320902CD951E900BCB877 /* ArrayTests.swift */,
 				CE9320922CD956A700BCB877 /* MoviesLoaderTests.swift */,
 				CEBE62802CE0046800AB2025 /* MovieQuizPresenterTests.swift */,
+				CEBE62822CE3F55600AB2025 /* MovieQuizViewControllerMock.swift */,
 			);
 			path = MovieQuizTests;
 			sourceTree = "<group>";
@@ -398,6 +401,7 @@
 			files = (
 				CE9320912CD951E900BCB877 /* ArrayTests.swift in Sources */,
 				CEBE62812CE0046800AB2025 /* MovieQuizPresenterTests.swift in Sources */,
+				CEBE62832CE3F55600AB2025 /* MovieQuizViewControllerMock.swift in Sources */,
 				CE9320932CD956A700BCB877 /* MoviesLoaderTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

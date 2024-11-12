@@ -1,6 +1,7 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController, MovieQuizViewControllerProtocol {
+final class MovieQuizViewController: UIViewController,
+                                     MovieQuizViewControllerProtocol {
     
     // MARK: - @IBOutlet
     
@@ -14,7 +15,7 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
     // MARK: - Private Properties
     
     private var alertPresenter: AlertPresenter?
-    private var presenter: MovieQuizPresenter!
+    private var presenter: MovieQuizPresenter?
     
     // MARK: - Lifecycle
     
@@ -90,7 +91,7 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
                 // включение кнопки ответа
                 self.changeStateButtons(isEnabled: true)
                 // загружаем вопросы
-                self.presenter.restartGame()
+                self.presenter?.restartGame()
             }
         
         
@@ -104,7 +105,7 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
             buttonText: "Попробовать ещё раз") { [weak self] in
                 guard let self = self else { return }
                 
-                presenter.restartGame()
+                presenter?.restartGame()
             }
         
         
@@ -114,11 +115,11 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
     // MARK: - IBAction
     
     @IBAction private func noButtonClicked(_ sender: UIButton) {
-        presenter.noButtonClicked()
+        presenter?.buttonCkicked(isYes: false)
     }
     
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
-        presenter.yesButtonClicked()
+        presenter?.buttonCkicked(isYes: true)
     }
     
     // MARK: - Private Methods

@@ -30,12 +30,6 @@ final class MovieQuizUITests: XCTestCase {
         app.terminate()
         app = nil
     }
-
-    func testExample() throws {
-        // UI tests must launch the application that they test.
-        let app = XCUIApplication()
-        app.launch()
-    }
     
     func testYesButton() {
         sleep(3)

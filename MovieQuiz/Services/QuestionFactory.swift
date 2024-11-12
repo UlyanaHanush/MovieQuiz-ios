@@ -56,7 +56,7 @@ final class QuestionFactory: QuestionFactoryProtocol {
                     case .success(let imageData):
                         let rating = Float(movie.rating) ?? 0
                         
-                        let raitingNumber = (0...10).randomElement() ?? 0
+                        let raitingNumber = (5...10).randomElement() ?? 0
                         let text = "Рейтинг этого фильма больше чем \(raitingNumber)?"
                         let correctAnswer = rating > Float(raitingNumber)
                         
