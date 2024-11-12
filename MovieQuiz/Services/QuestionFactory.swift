@@ -7,6 +7,11 @@
 
 import Foundation
 
+// Определение пользовательских ошибок, связанных с фабрикой вопросов
+enum QuestionFactoryError: Error {
+    case loadImageError(String) // Ошибка загрузки изображения
+}
+
 /// хранение и обработка вопросов для квиза
 final class QuestionFactory: QuestionFactoryProtocol {
     private weak var delegate: QuestionFactoryDelegate?
@@ -14,8 +19,8 @@ final class QuestionFactory: QuestionFactoryProtocol {
     private var movies: [MostPopularMovie] = []
     
     init(moviesLoader: MoviesLoading, delegate: QuestionFactoryDelegate?) {
-            self.moviesLoader = moviesLoader
-            self.delegate = delegate
+        self.moviesLoader = moviesLoader
+        self.delegate = delegate
     }
     
     func loadData() {
@@ -45,32 +50,44 @@ final class QuestionFactory: QuestionFactoryProtocol {
             let index = (0..<self.movies.count).randomElement() ?? 0
             guard let movie = self.movies[safe: index] else { return }
             
-            var imageData = Data()
-           
-           do {
-                imageData = try Data(contentsOf: movie.resizedImageURL)
-            } catch {
-                /// вызываем функцию ошибки картинки
-                print("Failed to load image")
-            }
-            
-            let rating = Float(movie.rating) ?? 0
-            
-            let raitingNumber = (0...10).randomElement() ?? 0
-            let text = "Рейтинг этого фильма больше чем \(raitingNumber)?"
-            let correctAnswer = rating > Float(raitingNumber)
-            
-            let question = QuizQuestion(image: imageData,
-                                         text: text,
-                                         correctAnswer: correctAnswer)
-            
-            DispatchQueue.main.async { [weak self] in
-                guard let self = self else { return }
-                self.delegate?.didReceiveNextQuestion(question: question)
+            self.loadImage(for: movie) { result in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success(let imageData):
+                        let rating = Float(movie.rating) ?? 0
+                        
+                        let raitingNumber = (5...10).randomElement() ?? 0
+                        let text = "Рейтинг этого фильма больше чем \(raitingNumber)?"
+                        let correctAnswer = rating > Float(raitingNumber)
+                        
+                        let question = QuizQuestion(image: imageData,
+                                                    text: text,
+                                                    correctAnswer: correctAnswer)
+                        self.delegate?.didReceiveNextQuestion(question: question)
+                    case .failure(let error):
+                        // Уведомление делегата об ошибке загрузки изображения
+                        self.delegate?.didFailToLoadImage(with: error)
+                    }
+                }
             }
         }
     }
-}
+    
+    func loadImage(for movie: MostPopularMovie, completion: @escaping (Result<Data, Error>) -> Void) {
+            DispatchQueue.global().async {
+                do {
+                    let imageData = try Data(contentsOf: movie.resizedImageURL)
+                    DispatchQueue.main.async {
+                        completion(.success(imageData))
+                    }
+                } catch {
+                    DispatchQueue.main.async {
+                        completion(.failure(QuestionFactoryError.loadImageError(error.localizedDescription)))
+                    }
+                }
+            }
+        }
+    }
 
 //    private let questions: [QuizQuestion] = [
 //        QuizQuestion(
